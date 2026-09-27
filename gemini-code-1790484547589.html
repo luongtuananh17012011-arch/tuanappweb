@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TUNA HEADLOCK - TUNA HEADLOCK</title>
+<style>
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; font-family:Arial,sans-serif;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(104,55,180,.45), transparent 38%),
+      linear-gradient(180deg,#11172d 0%,#080d1d 100%);
+    color:#fff; display:flex; justify-content:center; align-items:flex-start;
+    padding:22px 12px;
+  }
+  .app{width:min(390px,100%)}
+  .top{text-align:center;margin-bottom:16px; user-select:none;}
+  .top h1{font-size:22px;margin:0 0 3px;font-weight:800}
+  .top p{font-size:9px;color:#8d93a8;margin:0;letter-spacing:1px}
+  
+  /* Khung Admin (Ẩn - Gõ /admin để hiển thị) */
+  .admin-panel{
+    display: none;
+    background: linear-gradient(180deg, rgba(40,15,60,.98), rgba(20,8,34,.98));
+    border: 1px solid #a447e8; border-radius: 12px; padding: 12px; margin-bottom: 12px;
+    box-shadow: 0 0 20px rgba(164,71,232,0.3);
+  }
+  .admin-title{font-size:11px; font-weight:bold; color:#d47aff; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;}
+  .admin-content{font-size:9.5px; color:#e0c3fc; line-height:1.5;}
+  .admin-select, .admin-input{
+    width:100%; background:#130b22; border:1px solid #7a4ee5; color:#fff;
+    padding:6px 8px; border-radius:6px; font-size:9.5px; margin-top:5px; outline:none;
+  }
+  .admin-btn{
+    background:linear-gradient(90deg,#a447e8,#7a4ee5); color:#fff; border:none;
+    padding:6px 10px; border-radius:6px; font-size:9.5px; font-weight:bold; cursor:pointer; margin-top:8px; width:100%;
+  }
+  .admin-result{
+    background:#0b1322; border:1px dashed #7a4ee5; border-radius:6px;
+    padding:6px; font-size:9px; color:#ffd700; margin-top:6px; word-break: break-all;
+    display: none; text-align: center; font-weight: bold;
+  }
+
+  /* Khung nhập Key chung */
+  .key-container{
+    background:linear-gradient(180deg,rgba(20,35,60,.95),rgba(10,20,38,.95));
+    border:1px solid #1c6182; border-radius:12px; padding:10px 12px; margin-bottom:10px;
+    box-shadow:0 0 15px rgba(0,190,255,.1);
+  }
+  .key-title{font-size:10.5px;font-weight:bold;color:#42d9ff;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
+  .key-row{display:flex;gap:6px;}
+  .key-input{
+    flex:1; background:#0b1322; border:1px solid #1c526b; color:#fff;
+    padding:6px 9px; border-radius:8px; font-size:10.5px; outline:none;
+  }
+  .key-input:focus{border-color:#19bce8;}
+  .key-btn{
+    background:linear-gradient(90deg,#19bce8,#117d91); color:#fff; border:none;
+    padding:6px 10px; border-radius:8px; font-size:9.5px; font-weight:bold; cursor:pointer;
+  }
+  .key-btn:active{opacity:0.8}
+  .key-msg{font-size:8px;margin-top:5px;color:#ff6b6b;min-height:10px}
+  .status-badges{display:flex; gap:6px; margin-top:6px; font-size:8px;}
+  .badge-item{background:#0b1322; border:1px solid #1c526b; padding:3px 6px; border-radius:4px; color:#ff6b6b;}
+  .badge-item.active{border-color:#2ecc71; color:#2ecc71;}
+
+  .tabs{display:flex;gap:7px;margin-bottom:12px}
+  .tab{
+    flex:1;border:1px solid #26314e;background:#151b31;color:#8d94aa;
+    padding:9px 6px;border-radius:9px;font-size:10px; cursor:pointer;
+  }
+  .tab.active{color:#42d9ff;border-color:#1599bb;background:#10273a}
+  
+  .panel{
+    border:1px solid #17647d;border-radius:12px;padding:12px;
+    background:linear-gradient(180deg,rgba(15,30,52,.97),rgba(9,18,34,.97));
+    box-shadow:0 0 20px rgba(0,190,255,.12)
+  }
+  .title{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:10px;color:#34d5ff;font-weight:800;font-size:11px
+  }
+  .auto{font-size:8px;color:#58e7ff;border:1px solid #177d91;padding:3px 5px;border-radius:5px}
+  .item{
+    display:flex;align-items:center;gap:10px;padding:8px 5px;
+    border-bottom:1px solid rgba(100,120,150,.12)
+  }
+  .item:last-child{border-bottom:0}
+  .icon{
+    width:27px;height:27px;border-radius:7px;display:grid;place-items:center;
+    font-size:13px;color:#fff;flex:none
+  }
+  .i1{background:#e45d4f}.i2{background:#d4a529}.i3{background:#a447e8}
+  .i4{background:#1eb8ce}.i5{background:#7a4ee5}
+  .text{flex:1}.name{font-size:11px;font-weight:700}.desc{font-size:8px;color:#6f788d;margin-top:2px}
+  .switch{position:relative;width:38px;height:22px;flex:none}
+  .switch input{display:none}
+  .slider{position:absolute;inset:0;border-radius:20px;background:#e9edf2;cursor:pointer;transition:.2s}
+  .slider:before{
+    content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;
+    border-radius:50%;background:#fff;box-shadow:0 1px 3px #555;transition:.2s
+  }
+  input:checked + .slider{background:#19bce8;box-shadow:0 0 10px rgba(25,188,232,.45)}
+  input:checked + .slider:before{transform:translateX(16px)}
+
+  .sens-box{display:flex;flex-direction:column;gap:8px;margin-top:5px}
+  .sens-input{
+    width:100%; background:#10182b; border:1px solid #1c526b; color:#fff;
+    padding:8px 10px; border-radius:8px; font-size:11px; outline:none;
+  }
+  .sens-input:focus{border-color:#19bce8;}
+  .sens-btn{
+    background:linear-gradient(90deg,#19bce8,#117d91); color:#fff; border:none;
+    padding:7px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer;
+  }
+  .sens-btn:active{opacity:0.8}
+  .sens-result{
+    background:#0b1322; border:1px dashed #1c526b; border-radius:8px;
+    padding:8px; font-size:9px; color:#a1ecff; margin-top:5px; line-height:1.4;
+    display:none;
+  }
+
+  .status{
+    margin-top:10px;text-align:center;font-size:9px;color:#777f93;min-height:14px
+  }
+  .footer{text-align:center;color:#596174;font-size:8px;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <h1>TUNA HEADLOCK</h1>
+    <p>TUNA HEADLOCK</p>
+  </div>
+
+  <!-- KHUNG QUẢN TRỊ VIÊN (CÓ THÊM Ô NHẬP TÊN KEY VÀ SỐ THIẾT BỊ) -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-title">
+      <span>⚙️ QUẢN TRỊ VIÊN (TẠO KEY & SỐ TB)</span>
+      <span style="font-size:8px; color:#ff9999; cursor:pointer;" onclick="closeAdmin()">[ĐÓNG]</span>
+    </div>
+    <div class="admin-content">
+      • Nhập tên Key mong muốn:
+      <input type="text" id="customKeyName" class="admin-input" placeholder="Ví dụ: VIPPRO, TUNA999...">
+      
+      • Chọn thời hạn:
+      <select id="keyDuration" class="admin-select">
+        <option value="1N">1 Ngày</option>
+        <option value="7N">7 Ngày</option>
+        <option value="30N">30 Ngày</option>
+        <option value="VIP">Vĩnh Viễn</option>
+      </select>
+
+      • Số lượng thiết bị (Số TB):
+      <input type="number" id="deviceLimitInput" class="admin-input" value="1" min="1" max="100" placeholder="Số máy tối đa...">
+      
+      <button class="admin-btn" onclick="generateCustomKey()">🔑 Tạo Key Kèm Số TB</button>
+      <div id="generatedKeyBox" class="admin-result"></div>
+    </div>
+  </div>
+
+  <!-- Khung Nhập Key Tổng Hợp -->
+  <div class="key-container">
+    <div class="key-title">
+      <span>🔑 NHẬP KEY KÍCH HOẠT HỆ THỐNG</span>
+    </div>
+    <div class="key-row">
+      <input type="text" id="masterKeyInput" class="key-input" placeholder="Nhập key hoặc gõ /admin...">
+      <button class="key-btn" onclick="verifyMasterKey()">Kích Hoạt</button>
+    </div>
+    <div id="masterMsg" class="key-msg">Test Keys: <b>SUP2026</b> | <b>AIM2026</b> | <b>SENS2026</b> (Hoặc gõ <b>/admin</b>)</div>
+    
+    <div class="status-badges">
+      <div class="badge-item" id="badgeSupport">Hỗ Trợ: CHƯA KHÓA</div>
+      <div class="badge-item" id="badgeAim">Premium App: CHƯA KHÓA</div>
+      <div class="badge-item" id="badgeSens">Độ Nhạy: CHƯA KHÓA</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('support', this)">⚡ Hỗ trợ</button>
+    <button class="tab" onclick="showTab('aim', this)">⌁ Premium App</button>
+    <button class="tab" onclick="showTab('sensitivity', this)">◈ Độ Nhạy</button>
+  </div>
+
+  <!-- Panel Hỗ Trợ -->
+  <div class="panel tab-panel" id="support">
+    <div class="title">
+      <span>⚡ TUNA HEADLOCK</span>
+      <span class="auto">AUTO</span>
+    </div>
+
+    <div class="item">
+      <div class="icon i1">⚡</div>
+      <div class="text"><div class="name">Nhẹ tâm</div><div class="desc">Full Red - Remove Visible HUD</div></div>
+      <label class="switch"><input type="checkbox" class="support-switch" disabled onchange="toggle(this,'Nhẹ tâm')"><span class="slider"></span></label>
+    </div>
+
+    <div class="item">
+      <div class="icon i2">▣</div>
+      <div class="text"><div class="name">Headlock</div><div class="desc">Head Lock - Less Visible</div></div>
+      <label class="switch"><input type="checkbox" class="support-switch" disabled onchange="toggle(this,'Headlock')"><span class="slider"></span></label>
+    </div>
+
+    <div class="item">
+      <div class="icon i3">✥</div>
+      <div class="text"><div class="name">Tối ưu máy</div><div class="desc">Bigger Head Neck Zone, Sticker</div></div>
+      <label class="switch"><input type="checkbox" class="support-switch" disabled onchange="toggle(this,'Tối ưu máy')"><span class="slider"></span></label>
+    </div>
+
+    <div class="item">
+      <div class="icon i4">◆</div>
+      <div class="text"><div class="name">Giảm lag / giảm giật</div><div class="desc">Soft Drag - Aim Pull to Head</div></div>
+      <label class="switch"><input type="checkbox" class="support-switch" disabled onchange="toggle(this,'Giảm lag / giảm giật')"><span class="slider"></span></label>
+    </div>
+
+    <div class="item">
+      <div class="icon i5">⌁</div>
+      <div class="text"><div class="name">Bám tâm</div><div class="desc">Magic Bullet</div></div>
+      <label class="switch"><input type="checkbox" class="support-switch" disabled onchange="toggle(this,'Bám tâm')"><span class="slider"></span></label>
+    </div>
+
+    <div class="status" id="status">Yêu cầu nhập Key Hỗ Trợ</div>
+  </div>
+
+  <!-- Panel Premium App -->
+  <div class="panel tab-panel" id="aim" style="display:none">
+    <div class="title">
+      <span>⌁ PREMIUM APP</span>
+      <span class="auto">AUTO</span>
+    </div>
+
+    <div class="item">
+      <div class="icon i1">✦</div>
+      <div class="text"><div class="name">Headlock Premium</div><div class="desc">Hỗ trợ luyện tập ngắm</div></div>
+      <label class="switch"><input type="checkbox" class="aim-switch" disabled onchange="toggleAim(this,'Headlock Premium')"><span class="slider"></span></label>
+    </div>
+
+    <div class="item">
+      <div class="icon i2">◎</div>
+      <div class="text"><div class="name">Siêu bám tâm</div><div class="desc">Chế độ hỗ trợ độ ổn định tâm</div></div>
+      <label class="switch"><input type="checkbox" class="aim-switch" disabled onchange="toggleAim(this,'Siêu bám tâm')"><span class="slider"></span></label>
+    </div>
+
+    <div class="item">
+      <div class="icon i3">✥</div>
+      <div class="text"><div class="name">Nhẹ tâm VIP</div><div class="desc">Chế độ luyện tập nhẹ tâm</div></div>
+      <label class="switch"><input type="checkbox" class="aim-switch" disabled onchange="toggleAim(this,'Nhẹ tâm VIP')"><span class="slider"></span></label>
+    </div>
+
+    <div class="item">
+      <div class="icon i4">◉</div>
+      <div class="text"><div class="name">Tâm ảo</div><div class="desc">Hiển thị tâm hỗ trợ trong giao diện</div></div>
+      <label class="switch"><input type="checkbox" class="aim-switch" disabled onchange="toggleAim(this,'Tâm ảo')"><span class="slider"></span></label>
+    </div>
+
+    <div class="item">
+      <div class="icon i5">⌁</div>
+      <div class="text"><div class="name">Aimlock</div><div class="desc">Chế độ hỗ trợ luyện aim</div></div>
+      <label class="switch"><input type="checkbox" class="aim-switch" disabled onchange="toggleAim(this,'Aimlock')"><span class="slider"></span></label>
+    </div>
+
+    <div class="item">
+      <div class="icon i5">⚙</div>
+      <div class="text"><div class="name">Macro NB</div><div class="desc">Tùy chọn macro trong giao diện demo</div></div>
+      <label class="switch"><input type="checkbox" class="aim-switch" disabled onchange="toggleAim(this,'Macro NB')"><span class="slider"></span></label>
+    </div>
+
+    <div class="status" id="aim-status">Yêu cầu nhập Key Premium App</div>
+  </div>
+
+  <!-- Panel Độ Nhạy -->
+  <div class="panel tab-panel" id="sensitivity" style="display:none">
+    <div class="title">
+      <span>◈ ĐỘ NHẠY</span>
+      <span class="auto">FF SETTING</span>
+    </div>
+    
+    <div class="sens-box">
+      <div class="name" style="font-size:10px;">Nhập tên dòng điện thoại của bạn:</div>
+      <input type="text" id="deviceInput" class="sens-input" placeholder="Ví dụ: iPhone 13, Samsung A52..." disabled>
+      <button class="sens-btn" id="sensBtn" onclick="findSensitivity()" style="opacity:0.6; cursor:not-allowed;">Tìm Độ Nhạy FF</button>
+      <div id="sensResult" class="sens-result"></div>
+    </div>
+
+    <div class="status" style="margin-top:15px;" id="sensStatusText">Cần nhập Key Độ Nhạy để sử dụng</div>
+  </div>
+
+  <div class="footer">DEMO INTERFACE • Custom Key & Device Limit Added</div>
+</div>
+
+<script>
+let isWaitingForAdminPassword = false;
+const ADMIN_PASSWORD = "admin123"; // Mật khẩu vào menu admin
+
+// Danh sách key hợp lệ ban đầu
+let validKeys = ["SUP2026", "AIM2026", "SENS2026"];
+
+function closeAdmin(){
+  document.getElementById('adminPanel').style.display = 'none';
+}
+
+// Hàm tạo key tùy chỉnh kèm Số TB (Thiết Bị)
+function generateCustomKey(){
+  let customName = document.getElementById('customKeyName').value.trim().toUpperCase();
+  const duration = document.getElementById('keyDuration').value;
+  const deviceLimit = document.getElementById('deviceLimitInput').value || 1;
+  const resultBox = document.getElementById('generatedKeyBox');
+
+  if(!customName){
+    customName = "KEY-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+  }
+
+  // Định dạng key mới bao gồm: TênKey - ThờiHạn - SốTB (Ví dụ: VIPPRO-30N-2TB)
+  const finalKey = `${customName}-${duration}-${deviceLimit}TB`;
+
+  if(!validKeys.includes(finalKey)){
+    validKeys.push(finalKey);
+  }
+
+  resultBox.style.display = 'block';
+  resultBox.innerHTML = `Đã tạo key thành công:<br><span style="font-size:11px; color:#fff;">${finalKey}</span>`;
+  document.getElementById('customKeyName').value = "";
+}
+
+let isSupportKeyValid = false;
+let isAimKeyValid = false;
+let isSensKeyValid = false;
+
+function verifyMasterKey(){
+  const inputEl = document.getElementById('masterKeyInput');
+  const rawVal = inputEl.value.trim();
+  const rawValUpper = rawVal.toUpperCase();
+  const msg = document.getElementById('masterMsg');
+  
+  if(!rawVal){
+    msg.style.color = "#ff6b6b";
+    msg.textContent = "⚠️ Vui lòng nhập key hoặc lệnh vào ô trống!";
+    return;
+  }
+
+  if(rawVal.toLowerCase() === '/admin'){
+    isWaitingForAdminPassword = true;
+    msg.style.color = "#d47aff";
+    msg.textContent = "🔒 Nhập mật khẩu quản trị viên vào ô trên và bấm Kích Hoạt:";
+    inputEl.value = "";
+    inputEl.placeholder = "Nhập mật khẩu Admin...";
+    return;
+  }
+
+  if(isWaitingForAdminPassword){
+    if(rawVal === ADMIN_PASSWORD){
+      document.getElementById('adminPanel').style.display = 'block';
+      msg.style.color = "#2ecc71";
+      msg.textContent = "🎉 Mở khóa Menu Admin thành công!";
+      isWaitingForAdminPassword = false;
+      inputEl.value = "";
+      inputEl.placeholder = "Nhập key hoặc gõ /admin...";
+    } else {
+      msg.style.color = "#ff6b6b";
+      msg.textContent = "❌ Mật khẩu Admin không chính xác!";
+      inputEl.value = "";
+    }
+    return;
+  }
+
+  let matched = validKeys.some(k => rawValUpper === k || rawValUpper.includes(k));
+
+  if(!matched && !rawValUpper.includes("SUP") && !rawValUpper.includes("AIM") && !rawValUpper.includes("SENS")) {
+    msg.style.color = "#ff6b6b";
+    msg.textContent = "❌ Key bạn nhập không hợp lệ hoặc đã hết hạn!";
+    return;
+  }
+
+  if(!isSupportKeyValid){
+    isSupportKeyValid = true;
+    document.querySelectorAll('.support-switch').forEach(sw => sw.disabled = false);
+    document.getElementById('status').textContent = "Ready — Hỗ trợ sẵn sàng";
+    const badge = document.getElementById('badgeSupport');
+    badge.classList.add('active'); badge.textContent = "Hỗ Trợ: ĐÃ MỞ KHÓA";
+  }
+
+  if(!isAimKeyValid){
+    isAimKeyValid = true;
+    document.querySelectorAll('.aim-switch').forEach(sw => sw.disabled = false);
+    document.getElementById('aim-status').textContent = "Ready — Premium App sẵn sàng";
+    const badge = document.getElementById('badgeAim');
+    badge.classList.add('active'); badge.textContent = "Premium App: ĐÃ MỞ KHÓA";
+  }
+
+  if(!isSensKeyValid){
+    isSensKeyValid = true;
+    document.getElementById('deviceInput').disabled = false;
+    const btn = document.getElementById('sensBtn');
+    btn.disabled = false; btn.style.opacity = "1"; btn.style.cursor = "pointer";
+    document.getElementById('sensStatusText').textContent = "Hệ thống tra cứu độ nhạy đã sẵn sàng";
+    const badge = document.getElementById('badgeSens');
+    badge.classList.add('active'); badge.textContent = "Độ Nhạy: ĐÃ MỞ KHÓA";
+  }
+
+  msg.style.color = "#2ecc71";
+  msg.textContent = "🎉 Kích hoạt toàn bộ hệ thống thành công với Key của bạn!";
+  inputEl.value = "";
+}
+
+function showTab(id, btn){
+  document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById(id);
+  if(panel) panel.style.display = 'block';
+
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggle(el, name){
+  if(!isSupportKeyValid) return;
+  const status = document.getElementById('status');
+  status.textContent = el.checked ? name + ' — Đã bật' : name + ' — Đã tắt';
+}
+
+function toggleAim(el, name){
+  if(!isAimKeyValid) return;
+  const status = document.getElementById('aim-status');
+  status.textContent = el.checked ? name + ' — Đã bật' : name + ' — Đã tắt';
+}
+
+function findSensitivity(){
+  if(!isSensKeyValid) return;
+  const input = document.getElementById('deviceInput').value.trim();
+  const resultDiv = document.getElementById('sensResult');
+  
+  if(!input){
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '⚠️ Vui lòng nhập tên dòng máy của bạn!';
+    return;
+  }
+
+  let general = Math.floor(Math.random() * (99 - 85 + 1)) + 85;
+  let redDot = Math.floor(Math.random() * (98 - 80 + 1)) + 80;
+  let scope2x = Math.floor(Math.random() * (96 - 75 + 1)) + 75;
+  let scope4x = Math.floor(Math.random() * (95 - 70 + 1)) + 70;
+  let sniper = Math.floor(Math.random() * (70 - 40 + 1)) + 40;
+  let freelook = Math.floor(Math.random() * (85 - 50 + 1)) + 50;
+
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = `✅ <b>Độ nhạy tối ưu cho: ${input}</b><br>` +
+                        `• Nhìn xung quanh: <b>${general}</b><br>` +
+                        `• Mức độ Red Dot: <b>${redDot}</b><br>` +
+                        `• Ống ngắm 2x: <b>${scope2x}</b> | 4x: <b>${scope4x}</b><br>` +
+                        `• Ống ngắm Sniper: <b>${sniper}</b><br>` +
+                        `• Nhìn xung quanh (Free look): <b>${freelook}</b>`;
+}
+</script>
+</body>
+</html>
